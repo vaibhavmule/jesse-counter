@@ -18,7 +18,7 @@ import { APP_URL } from '~/lib/constants';
 import { jesseCounterAbi } from '~/contracts/abi';
 import { config } from '~/components/providers/WagmiProvider';
 
-const JESSE_CONTRACT = '0x50f88fe97f72cd3e75b9eb4f747f59bceba80d59' as const;
+const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
 const CHARACTER_IMAGE_URL = 'https://pbs.twimg.com/profile_images/1879556312822120448/QngrqCSC_400x400.jpg';
 
 /**

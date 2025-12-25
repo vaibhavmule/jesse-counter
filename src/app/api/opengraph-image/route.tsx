@@ -5,7 +5,7 @@ import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { jesseCounterAbi } from "~/contracts/abi";
 
-const JESSE_CONTRACT = '0x50f88fe97f72cd3e75b9eb4f747f59bceba80d59' as const;
+const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
 
 const publicClient = createPublicClient({
   chain: base,

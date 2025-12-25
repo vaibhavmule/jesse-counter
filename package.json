@@ -20,10 +20,10 @@
     "deploy:vercel": "tsx scripts/deploy.ts",
     "deploy:raw": "vercel --prod",
     "cleanup": "node scripts/cleanup.js",
-    "deploy:contract": "hardhat run scripts/deploy-contract.ts --network base",
-    "deploy:contract:testnet": "hardhat run scripts/deploy-contract.ts --network baseSepolia",
-    "compile": "hardhat compile",
-    "verify": "hardhat verify --network base"
+    "compile": "forge build",
+    "deploy:contract": "forge script script/Deploy.s.sol:DeployScript --rpc-url base --broadcast --verify",
+    "deploy:contract:testnet": "forge script script/Deploy.s.sol:DeployScript --rpc-url baseSepolia --broadcast --verify",
+    "verify": "forge verify-contract --chain-id 8453"
   },
   "overrides": {
     "backslash": "0.2.0",
@@ -40,17 +40,18 @@
     "wrap-ansi": "9.0.0",
     "ansi-regex": "6.2.0",
     "supports-color": "10.2.0",
-    "strip-ansi": "7.1.0",
+    "strip-ansi": "6.0.1",
     "chalk": "5.6.0",
     "ansi-styles": "6.2.1"
   },
   "dependencies": {
     "@farcaster/auth-client": ">=0.3.0 <1.0.0",
+    "@farcaster/mini-app-solana": ">=0.0.17 <1.0.0",
     "@farcaster/miniapp-node": ">=0.1.5 <1.0.0",
     "@farcaster/miniapp-sdk": ">=0.1.6 <1.0.0",
     "@farcaster/miniapp-wagmi-connector": "^1.0.0",
-    "@farcaster/mini-app-solana": ">=0.0.17 <1.0.0",
     "@farcaster/quick-auth": ">=0.0.7 <1.0.0",
+    "@neynar/nodejs-sdk": "^2.19.0",
     "@neynar/react": "^1.2.15",
     "@pigment-css/react": "^0.0.30",
     "@radix-ui/react-label": "^2.1.1",
@@ -65,21 +66,22 @@
     "next": "^15",
     "react": "^19",
     "react-dom": "^19",
+    "siwe": "^3.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.23.6",
     "wagmi": "^2.14.12",
-    "zod": "^3.24.2",
-    "siwe": "^3.0.0",
-    "@neynar/nodejs-sdk": "^2.19.0"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
     "@types/inquirer": "^9.0.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vercel/sdk": "^1.9.0",
+    "cross-env": "^10.1.0",
     "crypto": "^1.0.1",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
@@ -87,6 +89,7 @@
     "inquirer": "^10.2.2",
     "pino-pretty": "^13.0.0",
     "postcss": "^8",
+    "strip-ansi": "6.0.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
@@ -107,7 +110,7 @@
     "wrap-ansi": "9.0.0",
     "ansi-regex": "6.2.0",
     "supports-color": "10.2.0",
-    "strip-ansi": "7.1.0",
+    "strip-ansi": "6.0.1",
     "chalk": "5.6.0",
     "ansi-styles": "6.2.1"
   },
@@ -127,7 +130,7 @@
       "wrap-ansi": "9.0.0",
       "ansi-regex": "6.2.0",
       "supports-color": "10.2.0",
-      "strip-ansi": "7.1.0",
+      "strip-ansi": "6.0.1",
       "chalk": "5.6.0",
       "ansi-styles": "6.2.1"
     }

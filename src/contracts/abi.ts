@@ -8,7 +8,7 @@
  * - Owner can update token reward amount
  * - Anyone can deposit tokens to fund rewards
  * 
- * The contract address will be set after deployment.
+ * Contract Address: 0xbA5502536ad555eD625397872EA09Cd4A39ea014
  * JESSE Token Address: 0x50f88fe97f72cd3e75b9eb4f747f59bceba80d59
  */
 
