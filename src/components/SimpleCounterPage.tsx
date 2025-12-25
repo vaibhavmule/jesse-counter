@@ -317,13 +317,18 @@ export function SimpleCounterPage() {
 
     try {
       setIsSharing(true);
-      const formattedCount = totalCount
-        ? totalCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-        : '0';
+      // Use user's individual count for sharing
+      const countToShare = userCount || BigInt(0);
+      const formattedCount = countToShare
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      // Include user's count in the embed URL
+      const shareUrl = `${APP_URL}?count=${countToShare.toString()}`;
       
       await actions.composeCast({
         text: `Just incremented the @jesse.base.eth counter to ${formattedCount}! I am based now 🟦`,
-        embeds: [`${APP_URL}`],
+        embeds: [shareUrl],
       });
       
       // Mark as shared so we can show the claim button
@@ -333,7 +338,7 @@ export function SimpleCounterPage() {
     } finally {
       setIsSharing(false);
     }
-  }, [isConnected, actions, totalCount]);
+  }, [isConnected, actions, userCount]);
 
   /**
    * Handles claiming the on-chain reward after sharing (1 JESSE per day).

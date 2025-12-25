@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { getNeynarUser } from "~/lib/neynar";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { jesseCounterAbi } from "~/contracts/abi";
@@ -31,10 +30,11 @@ async function getCounterValue(): Promise<string> {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const fid = searchParams.get('fid');
+  const countParam = searchParams.get('count');
 
-  const user = fid ? await getNeynarUser(Number(fid)) : null;
-  const counterValue = await getCounterValue();
+  // If count parameter is provided, use it (user's individual count)
+  // Otherwise, fetch total count from contract (default behavior)
+  const counterValue = countParam || await getCounterValue();
   const formattedCounter = counterValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   const imageResponse = new ImageResponse(
@@ -91,19 +91,6 @@ export async function GET(request: NextRequest) {
         >
           {formattedCounter}
         </div>
-
-        {/* User greeting if provided */}
-        {user && (
-          <p
-            tw="text-3xl mb-4"
-            style={{
-              color: '#0F172A',
-              fontFamily: 'system-ui, -apple-system',
-            }}
-          >
-            {user.display_name || user.username}
-          </p>
-        )}
 
         {/* Subtitle */}
         <p
