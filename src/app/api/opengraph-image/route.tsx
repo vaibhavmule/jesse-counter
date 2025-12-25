@@ -1,24 +1,124 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { getNeynarUser } from "~/lib/neynar";
+import { createPublicClient, http } from "viem";
+import { base } from "viem/chains";
+import { jesseCounterAbi } from "~/contracts/abi";
+
+const JESSE_CONTRACT = '0x50f88fe97f72cd3e75b9eb4f747f59bceba80d59' as const;
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+});
 
 export const dynamic = 'force-dynamic';
+
+async function getCounterValue(): Promise<string> {
+  try {
+    const totalCount = await publicClient.readContract({
+      address: JESSE_CONTRACT,
+      abi: jesseCounterAbi,
+      functionName: 'getTotalCount',
+    });
+    return totalCount.toString();
+  } catch (error) {
+    console.error('Error fetching counter for OG image:', error);
+    return '0';
+  }
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const fid = searchParams.get('fid');
 
   const user = fid ? await getNeynarUser(Number(fid)) : null;
+  const counterValue = await getCounterValue();
+  const formattedCounter = counterValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   const imageResponse = new ImageResponse(
     (
-      <div tw="flex h-full w-full flex-col justify-center items-center relative bg-primary">
-        {user?.pfp_url && (
-          <div tw="flex w-96 h-96 rounded-full overflow-hidden mb-8 border-8 border-white">
-            <img src={user.pfp_url} alt="Profile" tw="w-full h-full object-cover" />
+      <div
+        tw="flex h-full w-full flex-col items-center justify-center relative"
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
+        }}
+      >
+        {/* Glow effect background */}
+        <div
+          tw="absolute inset-0"
+          style={{
+            background: 'radial-gradient(circle at center, rgba(251, 191, 36, 0.1) 0%, transparent 70%)',
+          }}
+        />
+
+        {/* Top hat icon */}
+        <div tw="flex items-center justify-center mb-8">
+          <div
+            tw="flex items-center justify-center"
+            style={{
+              width: '96px',
+              height: '96px',
+              backgroundColor: '#fbbf24',
+              borderRadius: '50%',
+              boxShadow: '0 0 30px rgba(251, 191, 36, 0.5)',
+            }}
+          >
+            <span tw="text-5xl">🎩</span>
           </div>
+        </div>
+
+        {/* Title */}
+        <h1
+          tw="text-6xl font-bold mb-4"
+          style={{
+            color: '#60a5fa',
+            fontFamily: 'system-ui, -apple-system',
+            letterSpacing: '0.05em',
+          }}
+        >
+          $JESSE COUNTER
+        </h1>
+
+        {/* Counter Value */}
+        <div
+          tw="flex items-center justify-center mb-6"
+          style={{
+            fontSize: '120px',
+            fontWeight: '900',
+            color: '#fbbf24',
+            fontFamily: 'system-ui, -apple-system',
+            lineHeight: '1',
+            textShadow: '0 0 40px rgba(251, 191, 36, 0.6)',
+          }}
+        >
+          {formattedCounter}
+        </div>
+
+        {/* User greeting if provided */}
+        {user && (
+          <p
+            tw="text-3xl mb-4"
+            style={{
+              color: '#e2e8f0',
+              fontFamily: 'system-ui, -apple-system',
+            }}
+          >
+            {user.display_name || user.username}
+          </p>
         )}
-        <h1 tw="text-8xl text-white">{user?.display_name ? `Hello from ${user.display_name ?? user.username}!` : 'Hello!'}</h1>
+
+        {/* Subtitle */}
+        <p
+          tw="text-xl"
+          style={{
+            color: '#a78bfa',
+            opacity: 0.95,
+            fontFamily: 'system-ui, -apple-system',
+          }}
+        >
+          Increment the counter on Base
+        </p>
       </div>
     ),
     {
