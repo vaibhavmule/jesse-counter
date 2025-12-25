@@ -119,14 +119,14 @@ export async function GET(request: NextRequest) {
     ),
     {
       width: 1200,
-      height: 800,
+      height: 630,
+      headers: {
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
     }
   );
-
-  // Add cache headers to prevent caching
-  imageResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  imageResponse.headers.set('Pragma', 'no-cache');
-  imageResponse.headers.set('Expires', '0');
   
   return imageResponse;
 }
