@@ -37,7 +37,7 @@ export function SimpleCounterPage() {
   const [hasShared, setHasShared] = useState(false);
 
   // --- Hooks ---
-  const { context, actions, added, notificationDetails } = useMiniApp();
+  const { context, actions, added } = useMiniApp();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -64,7 +64,7 @@ export function SimpleCounterPage() {
     address: JESSE_CONTRACT,
     abi: jesseCounterAbi,
     functionName: 'getUserCount',
-    args: [address],
+    ...(address && { args: [address as `0x${string}`] }),
     query: { enabled: !!address },
   }) as { data: bigint | undefined; refetch: () => void };
 
@@ -72,7 +72,7 @@ export function SimpleCounterPage() {
     address: JESSE_CONTRACT,
     abi: jesseCounterAbi,
     functionName: 'getLastIncrementTimestamp',
-    args: [address],
+    ...(address && { args: [address as `0x${string}`] }),
     query: { enabled: !!address },
   }) as { data: string | undefined; refetch: () => void };
 
@@ -156,7 +156,7 @@ export function SimpleCounterPage() {
   const handleShare = useCallback(async () => {
     try {
       await actions.composeCast({
-        text: `Check out $jesse counter! 🎯`,
+        text: `I have just incremented $jesse counter and I am based`,
         embeds: [`${APP_URL}/simple`],
       });
       
