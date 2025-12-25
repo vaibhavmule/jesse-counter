@@ -323,7 +323,7 @@ export function SimpleCounterPage() {
       
       await actions.composeCast({
         text: `Just incremented the @jesse.base.eth counter to ${formattedCount}! I am based now 🟦`,
-        embeds: [`${APP_URL}/simple`],
+        embeds: [`${APP_URL}`],
       });
       
       // Mark as shared so we can show the claim button
