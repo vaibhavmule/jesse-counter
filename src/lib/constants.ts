@@ -16,7 +16,29 @@ import { type AccountAssociation } from '@farcaster/miniapp-core/src/manifest';
  * The base URL of the application.
  * Used for generating absolute URLs for assets and API endpoints.
  */
-export const APP_URL: string = process.env.NEXT_PUBLIC_URL!;
+function getAppUrl(): string {
+  // Try NEXT_PUBLIC_URL first
+  if (process.env.NEXT_PUBLIC_URL) {
+    const url = process.env.NEXT_PUBLIC_URL.trim();
+    if (url.startsWith('https://')) {
+      return url;
+    }
+    // If it doesn't start with https, add it
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`;
+    }
+  }
+  
+  // Fallback to Vercel URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // Fallback to domain from account association (jesse-counter.vercel.app)
+  return 'https://jesse-counter.vercel.app';
+}
+
+export const APP_URL: string = getAppUrl();
 
 /**
  * The name of the mini app as displayed to users.
