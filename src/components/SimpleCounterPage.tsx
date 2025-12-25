@@ -317,17 +317,17 @@ export function SimpleCounterPage() {
 
     try {
       setIsSharing(true);
-      // Use user's individual count for sharing
-      const countToShare = userCount || BigInt(0);
+      // Use total count for sharing (matching degen-counter pattern)
+      const countToShare = totalCount || BigInt(0);
       const formattedCount = countToShare
         .toString()
         .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       
-      // Include user's count in the embed URL
+      // Include total count in the embed URL
       const shareUrl = `${APP_URL}?count=${countToShare.toString()}`;
       
       await actions.composeCast({
-        text: `Just incremented the counter to ${formattedCount}! I am based now 🟦`,
+        text: `Just incremented the @jesse.base.eth counter to ${formattedCount}! I am based now 🟦`,
         embeds: [shareUrl],
       });
       
@@ -338,7 +338,7 @@ export function SimpleCounterPage() {
     } finally {
       setIsSharing(false);
     }
-  }, [isConnected, actions, userCount]);
+  }, [isConnected, actions, totalCount]);
 
   /**
    * Handles claiming the on-chain reward after sharing (1 JESSE per day).
