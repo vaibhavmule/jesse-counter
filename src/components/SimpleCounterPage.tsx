@@ -34,11 +34,10 @@ const CHARACTER_IMAGE_URL = 'https://pbs.twimg.com/profile_images/18795563128221
  */
 export function SimpleCounterPage() {
   // --- State ---
-  const [jesseBalance, setJesseBalance] = useState(0);
   const [hasShared, setHasShared] = useState(false);
 
   // --- Hooks ---
-  const { context, actions } = useMiniApp();
+  const { context, actions, added, notificationDetails } = useMiniApp();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -69,7 +68,25 @@ export function SimpleCounterPage() {
     query: { enabled: !!address },
   }) as { data: bigint | undefined; refetch: () => void };
 
+  const { data: lastIncrement, refetch: refetchLastIncrement } = useReadContract({
+    address: JESSE_CONTRACT,
+    abi: jesseCounterAbi,
+    functionName: 'getLastIncrementTimestamp',
+    args: [address],
+    query: { enabled: !!address },
+  }) as { data: string | undefined; refetch: () => void };
+
   // --- Effects ---
+  /**
+   * Auto-prompt to add app and enable notifications on first load
+   */
+  useEffect(() => {
+    if (!added && context?.client) {
+      // Prompt to add the mini app
+      actions.addMiniApp();
+    }
+  }, [added, context?.client, actions]);
+
   /**
    * Refetch counter values after transaction confirmation
    */
@@ -77,10 +94,40 @@ export function SimpleCounterPage() {
     if (isConfirmed) {
       refetchTotalCount();
       refetchUserCount();
-      // Award 1 jesse token for increment
-      setJesseBalance((prev) => prev + 1);
+      refetchLastIncrement();
+      
+      // If app not added yet, prompt to add after increment
+      if (!added) {
+        actions.addMiniApp();
+      }
     }
-  }, [isConfirmed, refetchTotalCount, refetchUserCount]);
+  }, [isConfirmed, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
+
+  // Calculate jesse balance: 1 per increment + 1 if shared
+  const jesseBalance = userCount ? Number(userCount) + (hasShared ? 1 : 0) : 0;
+
+  // Format time elapsed since last increment
+  const formatTimeElapsed = (timestamp: string | number | undefined) => {
+    if (!timestamp || timestamp === "never") return "Never";
+    const numTimestamp = parseInt(timestamp.toString(), 10);
+    if (isNaN(numTimestamp) || numTimestamp <= 0) return "Never";
+    const now = Math.floor(Date.now() / 1000);
+    const secondsElapsed = now - numTimestamp;
+    if (secondsElapsed <= 0) return "Just now";
+
+    const days = Math.floor(secondsElapsed / (24 * 60 * 60));
+    const hours = Math.floor((secondsElapsed % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((secondsElapsed % (60 * 60)) / 60);
+    const seconds = secondsElapsed % 60;
+
+    const parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0 && parts.length === 0) parts.push(`${seconds} sec${seconds !== 1 ? "s" : ""}`);
+
+    return parts.length > 0 ? parts.join(" ") + " ago" : "Just now";
+  };
 
   // --- Handlers ---
   /**
@@ -113,8 +160,7 @@ export function SimpleCounterPage() {
         embeds: [`${APP_URL}/simple`],
       });
       
-      // Award +1 jesse token for sharing
-      setJesseBalance((prev) => prev + 1);
+      // Mark as shared (adds +1 to jesse balance calculation)
       setHasShared(true);
     } catch (error) {
       console.error('Failed to share:', error);
@@ -184,13 +230,35 @@ export function SimpleCounterPage() {
         />
       </div>
 
-      {/* Counter Display */}
-      <div className="mb-6 text-center">
-        <div className="text-4xl font-bold text-gray-900 dark:text-white mb-1">
-          {totalCount?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') ?? '0'}
+      {/* Stats Cards */}
+      {isConnected && address && (
+        <div className="flex justify-center gap-4 mb-6 w-full max-w-[320px]">
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 flex-1">
+            <p className="text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider text-center mb-1">
+              You incremented
+            </p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white text-center">
+              {userCount?.toString() ?? "0"}
+            </p>
+          </div>
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 flex-1">
+            <p className="text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider text-center mb-1">
+              Last Increment
+            </p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white text-center">
+              {formatTimeElapsed(lastIncrement) ?? "—"}
+            </p>
+          </div>
         </div>
-        <div className="text-xs text-gray-600 dark:text-gray-400">
-          Total Increments
+      )}
+
+      {/* Total Counter Display - Bigger and More Prominent */}
+      <div className="mb-6 text-center">
+        <p className="text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs mb-2">
+          Total Incremented
+        </p>
+        <div className="text-6xl md:text-7xl font-black text-yellow-600 dark:text-yellow-400 mb-1">
+          {totalCount?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') ?? '0'}
         </div>
       </div>
 
