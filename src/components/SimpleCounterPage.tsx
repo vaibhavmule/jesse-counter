@@ -34,7 +34,6 @@ const CHARACTER_IMAGE_URL = 'https://pbs.twimg.com/profile_images/18795563128221
  */
 export function SimpleCounterPage() {
   // --- State ---
-  const [hasShared, setHasShared] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [previousTotalCount, setPreviousTotalCount] = useState<bigint | undefined>(undefined);
   const totalCountRef = useRef<HTMLDivElement>(null);
@@ -79,6 +78,26 @@ export function SimpleCounterPage() {
     query: { enabled: !!address },
   }) as { data: string | undefined; refetch: () => void };
 
+  // Check if user can share (daily cooldown)
+  const { data: canShareNow, refetch: refetchCanShare } = useReadContract({
+    address: JESSE_CONTRACT,
+    abi: jesseCounterAbi,
+    functionName: 'canShare',
+    ...(address && { args: [address as `0x${string}`] }),
+    query: { enabled: !!address },
+  }) as { data: boolean | undefined; refetch: () => void };
+
+  // Share transaction hooks
+  const {
+    writeContract: writeShareContract,
+    data: shareHash,
+    error: _shareError,
+    isPending: isSharePending,
+  } = useWriteContract();
+
+  const { isLoading: isShareConfirming, isSuccess: isShareConfirmed } =
+    useWaitForTransactionReceipt({ hash: shareHash });
+
   // --- Effects ---
   /**
    * Auto-prompt to add app and enable notifications on first load
@@ -111,6 +130,18 @@ export function SimpleCounterPage() {
   }, [isConfirmed, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
 
   /**
+   * Refetch share status after share transaction confirmation
+   */
+  useEffect(() => {
+    if (isShareConfirmed) {
+      refetchCanShare();
+      // Trigger confetti animation for share reward
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    }
+  }, [isShareConfirmed, refetchCanShare]);
+
+  /**
    * Animate number change when total count increases
    */
   useEffect(() => {
@@ -126,8 +157,10 @@ export function SimpleCounterPage() {
     setPreviousTotalCount(totalCount);
   }, [totalCount, previousTotalCount]);
 
-  // Calculate jesse balance: 1 per increment + 1 if shared
-  const jesseBalance = userCount ? Number(userCount) + (hasShared ? 1 : 0) : 0;
+  // Calculate jesse balance: 1 per increment + 1 per share (daily)
+  // Note: Share reward is now on-chain, so we don't need to add it here
+  // The balance shown is just from increments
+  const jesseBalance = userCount ? Number(userCount) : 0;
 
   // Format time elapsed since last increment
   const formatTimeElapsed = (timestamp: string | number | undefined) => {
@@ -174,10 +207,15 @@ export function SimpleCounterPage() {
   }, [isConnected, writeContract]);
 
   /**
-   * Handles sharing the app to earn +1 jesse token.
+   * Handles sharing the app to earn +1 jesse token (once per day).
    */
   const handleShare = useCallback(async () => {
+    if (!isConnected) {
+      return;
+    }
+
     try {
+      // 1. First, share on Farcaster
       const formattedCount = totalCount
         ? totalCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
         : '0';
@@ -187,12 +225,16 @@ export function SimpleCounterPage() {
         embeds: [`${APP_URL}/simple`],
       });
       
-      // Mark as shared (adds +1 to jesse balance calculation)
-      setHasShared(true);
+      // 2. Then, claim the on-chain reward (1 JESSE per day)
+      await writeShareContract({
+        address: JESSE_CONTRACT,
+        abi: jesseCounterAbi,
+        functionName: 'shareApp',
+      });
     } catch (error) {
       console.error('Failed to share:', error);
     }
-  }, [actions, totalCount]);
+  }, [isConnected, actions, totalCount, writeShareContract]);
 
   // --- Connect/Switch Handlers ---
   const { connect } = useConnect();
@@ -307,7 +349,7 @@ export function SimpleCounterPage() {
           {jesseBalance} $jesse
         </div>
         <div className="text-xs text-[#475569]">
-          {hasShared ? '1 from increment + 1 from share' : '1 from increment'}
+          From increments (shares rewarded separately)
         </div>
       </div>
 
@@ -395,16 +437,28 @@ export function SimpleCounterPage() {
         )}
       </div>
 
-      {/* Share Button - only show after increment is done */}
-      {(userCount && Number(userCount) > 0) && !hasShared && (
+      {/* Share Button - show if user can share (once per day) */}
+      {isConnected && address && canShareNow && (
         <div className="mb-4 w-full max-w-[320px] relative z-10">
           <Button
             onClick={handleShare}
+            disabled={isSharePending || isShareConfirming}
             variant="outline"
-            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105"
+            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Share (+1 $jesse)
+            {isSharePending || isShareConfirming 
+              ? 'Sharing...' 
+              : 'Share App (+1 $jesse/day)'}
           </Button>
+        </div>
+      )}
+      
+      {/* Show message if user already shared today */}
+      {isConnected && address && canShareNow === false && (
+        <div className="mb-4 w-full max-w-[320px] relative z-10">
+          <p className="text-sm text-[#475569] text-center">
+            You can share again in 24 hours to earn another 1 $jesse
+          </p>
         </div>
       )}
 
