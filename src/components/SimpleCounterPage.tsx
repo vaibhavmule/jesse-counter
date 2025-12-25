@@ -316,14 +316,46 @@ export function SimpleCounterPage() {
         {!isConnected ? (
           <Button
             onClick={handleConnect}
-            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 relative"
+            style={{
+              boxShadow: '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
+              transform: 'translateY(0)',
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'translateY(4px)';
+              e.currentTarget.style.boxShadow = '0 4px 0 0 #EAB308, 0 8px 16px rgba(0,0,0,0.12)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+            }}
           >
             {chainId !== base.id ? 'Switch to Base' : 'Connect Wallet'}
           </Button>
         ) : chainId !== base.id ? (
           <Button
             onClick={handleSwitchChain}
-            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 relative"
+            style={{
+              boxShadow: '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
+              transform: 'translateY(0)',
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'translateY(4px)';
+              e.currentTarget.style.boxShadow = '0 4px 0 0 #EAB308, 0 8px 16px rgba(0,0,0,0.12)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+            }}
           >
             Switch to Base
           </Button>
@@ -332,7 +364,31 @@ export function SimpleCounterPage() {
             onClick={handleIncrement}
             disabled={isPending || isConfirming}
             isLoading={isPending || isConfirming}
-            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] disabled:!bg-[#CBD5E1] disabled:!text-[#64748B] disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]"
+            className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 disabled:!bg-[#CBD5E1] disabled:!text-[#64748B] disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-[0_8px_0_0_#A3A3A3] disabled:hover:translate-y-0 relative"
+            style={{
+              boxShadow: isPending || isConfirming 
+                ? '0 4px 0 0 #A3A3A3' 
+                : '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
+              transform: 'translateY(0)',
+            }}
+            onMouseDown={(e) => {
+              if (!isPending && !isConfirming) {
+                e.currentTarget.style.transform = 'translateY(4px)';
+                e.currentTarget.style.boxShadow = '0 4px 0 0 #EAB308, 0 8px 16px rgba(0,0,0,0.12)';
+              }
+            }}
+            onMouseUp={(e) => {
+              if (!isPending && !isConfirming) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isPending && !isConfirming) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+              }
+            }}
           >
             {isPending ? 'Processing...' : isConfirming ? 'Confirming...' : 'Increment'}
           </Button>
