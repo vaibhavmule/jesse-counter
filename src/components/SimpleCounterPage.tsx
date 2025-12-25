@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { 
   useAccount, 
   useWriteContract, 
@@ -35,6 +35,9 @@ const CHARACTER_IMAGE_URL = 'https://pbs.twimg.com/profile_images/18795563128221
 export function SimpleCounterPage() {
   // --- State ---
   const [hasShared, setHasShared] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [previousTotalCount, setPreviousTotalCount] = useState<bigint | undefined>(undefined);
+  const totalCountRef = useRef<HTMLDivElement>(null);
 
   // --- Hooks ---
   const { context, actions, added } = useMiniApp();
@@ -96,12 +99,32 @@ export function SimpleCounterPage() {
       refetchUserCount();
       refetchLastIncrement();
       
+      // Trigger confetti animation
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      
       // If app not added yet, prompt to add after increment
       if (!added) {
         actions.addMiniApp();
       }
     }
   }, [isConfirmed, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
+
+  /**
+   * Animate number change when total count increases
+   */
+  useEffect(() => {
+    if (totalCount && previousTotalCount !== undefined && totalCount > previousTotalCount) {
+      // Trigger animation
+      if (totalCountRef.current) {
+        totalCountRef.current.classList.add('animate-pulse');
+        setTimeout(() => {
+          totalCountRef.current?.classList.remove('animate-pulse');
+        }, 600);
+      }
+    }
+    setPreviousTotalCount(totalCount);
+  }, [totalCount, previousTotalCount]);
 
   // Calculate jesse balance: 1 per increment + 1 if shared
   const jesseBalance = userCount ? Number(userCount) + (hasShared ? 1 : 0) : 0;
@@ -197,17 +220,17 @@ export function SimpleCounterPage() {
   // Only works on Base chain (check is done in render, but we ensure it's handled)
   if (isConnected && chainId !== base.id) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-6">
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center px-4 py-6">
         <div className="text-center max-w-md">
-          <div className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-2xl font-bold text-white mb-4">
             Switch to Base
           </div>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-white/80 mb-6">
             This app only works on Base chain.
           </p>
           <Button
             onClick={handleSwitchChain}
-            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold"
+            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold border-2 border-purple-500 shadow-lg shadow-yellow-400/50"
           >
             Switch to Base
           </Button>
@@ -219,37 +242,46 @@ export function SimpleCounterPage() {
   // --- Render ---
   return (
     <div 
-      className="min-h-screen bg-gradient-to-b from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-6"
+      className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden"
       style={{
         paddingTop: context?.client.safeAreaInsets?.top ? `${context.client.safeAreaInsets.top + 16}px` : '16px',
         paddingBottom: context?.client.safeAreaInsets?.bottom ? `${context.client.safeAreaInsets.bottom + 16}px` : '16px',
       }}
     >
+      {/* Animated background glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent animate-pulse" />
+      
+      {/* Confetti effect */}
+      {showConfetti && <ConfettiEffect />}
+
       {/* Character Image */}
-      <div className="mb-6">
-        <img
-          src={CHARACTER_IMAGE_URL}
-          alt="Jesse character"
-          className="w-24 h-24 rounded-full border-4 border-yellow-300"
-        />
+      <div className="mb-6 relative z-10">
+        <div className="relative">
+          <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl opacity-50 animate-pulse" />
+          <img
+            src={CHARACTER_IMAGE_URL}
+            alt="Jesse character"
+            className="w-24 h-24 rounded-full border-4 border-yellow-300 relative z-10 shadow-lg shadow-yellow-400/50"
+          />
+        </div>
       </div>
 
       {/* Stats Cards */}
       {isConnected && address && (
-        <div className="flex justify-center gap-4 mb-6 w-full max-w-[320px]">
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 flex-1">
-            <p className="text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider text-center mb-1">
+        <div className="flex justify-center gap-4 mb-6 w-full max-w-[320px] relative z-10">
+          <div className="bg-amber-900/80 border-2 border-orange-500 rounded-xl p-4 flex-1 backdrop-blur-sm shadow-lg transition-all duration-300 hover:scale-105">
+            <p className="text-white text-xs uppercase tracking-wider text-center mb-1 font-semibold">
               You incremented
             </p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white text-center">
+            <p className="text-2xl font-bold text-white text-center transition-all duration-300">
               {userCount?.toString() ?? "0"}
             </p>
           </div>
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 flex-1">
-            <p className="text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider text-center mb-1">
+          <div className="bg-amber-900/80 border-2 border-orange-500 rounded-xl p-4 flex-1 backdrop-blur-sm shadow-lg transition-all duration-300 hover:scale-105">
+            <p className="text-white text-xs uppercase tracking-wider text-center mb-1 font-semibold">
               Last Increment
             </p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white text-center">
+            <p className="text-xl font-bold text-white text-center">
               {formatTimeElapsed(lastIncrement) ?? "—"}
             </p>
           </div>
@@ -257,38 +289,41 @@ export function SimpleCounterPage() {
       )}
 
       {/* Total Counter Display - Bigger and More Prominent */}
-      <div className="mb-6 text-center">
-        <p className="text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs mb-2">
+      <div className="mb-6 text-center relative z-10">
+        <p className="text-white/80 uppercase tracking-wider text-xs mb-2 font-semibold">
           Total Incremented
         </p>
-        <div className="text-6xl md:text-7xl font-black text-yellow-600 dark:text-yellow-400 mb-1">
+        <div 
+          ref={totalCountRef}
+          className="text-6xl md:text-7xl font-black text-yellow-400 mb-1 transition-all duration-500 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]"
+        >
           {totalCount?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') ?? '0'}
         </div>
       </div>
 
       {/* Jesse Balance */}
-      <div className="mb-6 text-center">
-        <div className="text-xl font-semibold text-yellow-600 dark:text-yellow-400 mb-0.5">
+      <div className="mb-6 text-center relative z-10">
+        <div className="text-xl font-semibold text-yellow-400 mb-0.5 drop-shadow-lg">
           {jesseBalance} $jesse
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-500">
+        <div className="text-xs text-white/60">
           {hasShared ? '1 from increment + 1 from share' : '1 from increment'}
         </div>
       </div>
 
       {/* Connect/Switch Chain/Increment Button */}
-      <div className="mb-4 w-full max-w-[280px]">
+      <div className="mb-4 w-full max-w-[280px] relative z-10">
         {!isConnected ? (
           <Button
             onClick={handleConnect}
-            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-0"
+            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-2 border-purple-500 shadow-lg shadow-yellow-400/50 transition-all duration-300 hover:scale-105 hover:shadow-yellow-400/70"
           >
             {chainId !== base.id ? 'Switch to Base' : 'Connect Wallet'}
           </Button>
         ) : chainId !== base.id ? (
           <Button
             onClick={handleSwitchChain}
-            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-0"
+            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-2 border-purple-500 shadow-lg shadow-yellow-400/50 transition-all duration-300 hover:scale-105 hover:shadow-yellow-400/70"
           >
             Switch to Base
           </Button>
@@ -297,7 +332,7 @@ export function SimpleCounterPage() {
             onClick={handleIncrement}
             disabled={isPending || isConfirming}
             isLoading={isPending || isConfirming}
-            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-0"
+            className="!bg-yellow-400 hover:!bg-yellow-500 !text-gray-900 font-bold text-base py-3.5 border-2 border-purple-500 shadow-lg shadow-yellow-400/50 transition-all duration-300 hover:scale-105 hover:shadow-yellow-400/70 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {isPending ? 'Processing...' : isConfirming ? 'Confirming...' : 'Increment'}
           </Button>
@@ -306,11 +341,11 @@ export function SimpleCounterPage() {
 
       {/* Share Button - only show after increment is done */}
       {(userCount && Number(userCount) > 0) && !hasShared && (
-        <div className="mb-3 w-full max-w-[280px]">
+        <div className="mb-3 w-full max-w-[280px] relative z-10">
           <Button
             onClick={handleShare}
             variant="outline"
-            className="border-yellow-400 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-sm py-2.5"
+            className="border-yellow-400 text-yellow-400 hover:bg-yellow-400/10 text-sm py-2.5 transition-all duration-300 hover:scale-105"
           >
             Share (+1 $jesse)
           </Button>
@@ -319,24 +354,64 @@ export function SimpleCounterPage() {
 
       {/* Transaction Error */}
       {writeError && (
-        <div className="mt-3 w-full max-w-[280px]">
+        <div className="mt-3 w-full max-w-[280px] relative z-10">
           {renderError(writeError)}
         </div>
       )}
 
       {/* Transaction Success Message */}
       {isConfirmed && (
-        <div className="mt-3 text-green-600 dark:text-green-400 text-xs">
-          Transaction confirmed! +1 $jesse
+        <div className="mt-3 text-green-400 text-xs font-semibold animate-pulse relative z-10">
+          ✨ Transaction confirmed! +1 $jesse
         </div>
       )}
     </div>
   );
 }
 
+// Confetti Effect Component
+function ConfettiEffect() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+      {Array.from({ length: 80 }).map((_, i) => {
+        const colors = ['#fbbf24', '#f59e0b', '#eab308', '#facc15', '#fde047', '#fbbf24'];
+        const shapes = ['circle', 'square', 'triangle'];
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        const size = 4 + Math.random() * 6;
+        const startX = Math.random() * 100;
+        const endX = startX + (Math.random() - 0.5) * 50;
+        
+        return (
+          <div
+            key={i}
+            className="absolute animate-confetti"
+            style={{
+              left: `${startX}%`,
+              top: '-10px',
+              animationDelay: `${Math.random() * 0.5}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+              '--end-x': `${endX}%`,
+            } as React.CSSProperties}
+          >
+            <div
+              className={shape === 'circle' ? 'rounded-full' : shape === 'square' ? 'rotate-45' : ''}
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+                boxShadow: `0 0 ${size}px ${colors[Math.floor(Math.random() * colors.length)]}`,
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function BlockedMessage({ message }: { message: string }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center px-6">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -351,10 +426,10 @@ function BlockedMessage({ message }: { message: string }) {
           d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
         />
       </svg>
-      <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white text-center">
+      <h2 className="text-xl font-semibold mb-2 text-white text-center">
         Farcaster Client Required
       </h2>
-      <p className="text-base text-gray-600 dark:text-gray-400 text-center max-w-md">
+      <p className="text-base text-white/80 text-center max-w-md">
         {message}
       </p>
     </div>

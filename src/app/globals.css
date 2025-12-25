@@ -116,3 +116,21 @@ body {
     @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 }
+
+@layer utilities {
+  /* Confetti animation */
+  @keyframes confetti {
+    0% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) translateX(calc(var(--end-x, 0%) - 50%)) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  
+  .animate-confetti {
+    animation: confetti linear forwards;
+  }
+}
