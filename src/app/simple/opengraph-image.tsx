@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 import { jesseCounterAbi } from '~/contracts/abi';
+import { APP_URL } from '~/lib/constants';
 
 const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
 
@@ -47,51 +48,23 @@ export default async function Image() {
           }}
         />
 
-        {/* Top hat icon area */}
+        {/* Character image */}
         <div tw="flex items-center justify-center mb-6">
-          <div
-            tw="flex items-center justify-center"
+          <img
+            src={`${APP_URL}/icon.png`}
+            alt="Jesse"
+            tw="w-20 h-20 rounded-full"
             style={{
-              width: '72px',
-              height: '72px',
-              backgroundColor: '#fbbf24',
-              borderRadius: '50%',
               boxShadow: '0 0 20px rgba(251, 191, 36, 0.5)',
             }}
-          >
-            <span tw="text-3xl">🎩</span>
-          </div>
+          />
         </div>
-
-        {/* Title */}
-        <h1
-          tw="text-5xl font-bold mb-2"
-          style={{
-            color: '#60a5fa',
-            fontFamily: 'system-ui, -apple-system',
-            letterSpacing: '0.05em',
-          }}
-        >
-          $JESSE COUNTER
-        </h1>
-
-        {/* Subtitle */}
-        <p
-          tw="text-xl mb-10"
-          style={{
-            color: '#e2e8f0',
-            opacity: 0.9,
-            fontFamily: 'system-ui, -apple-system',
-          }}
-        >
-          LIVE ON-CHAIN COUNT
-        </p>
 
         {/* Counter Value */}
         <div
-          tw="flex items-center justify-center"
+          tw="flex items-center justify-center mb-4"
           style={{
-            fontSize: '140px',
+            fontSize: '160px',
             fontWeight: '900',
             color: '#4ade80',
             fontFamily: 'system-ui, -apple-system',
@@ -102,9 +75,21 @@ export default async function Image() {
           {formattedCounter}
         </div>
 
+        {/* Title */}
+        <h1
+          tw="text-4xl font-bold mb-2"
+          style={{
+            color: '#60a5fa',
+            fontFamily: 'system-ui, -apple-system',
+            letterSpacing: '0.05em',
+          }}
+        >
+          $JESSE COUNTER
+        </h1>
+
         {/* Bottom text */}
         <p
-          tw="text-lg mt-10"
+          tw="text-lg mt-4"
           style={{
             color: '#a78bfa',
             opacity: 0.95,

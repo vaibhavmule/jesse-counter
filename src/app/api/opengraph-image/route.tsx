@@ -4,6 +4,7 @@ import { getNeynarUser } from "~/lib/neynar";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { jesseCounterAbi } from "~/contracts/abi";
+import { APP_URL } from "~/lib/constants";
 
 const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
 
@@ -52,25 +53,21 @@ export async function GET(request: NextRequest) {
           }}
         />
 
-        {/* Top hat icon */}
+        {/* Character image */}
         <div tw="flex items-center justify-center mb-8">
-          <div
-            tw="flex items-center justify-center"
+          <img
+            src={`${APP_URL}/icon.png`}
+            alt="Jesse"
+            tw="w-24 h-24 rounded-full"
             style={{
-              width: '96px',
-              height: '96px',
-              backgroundColor: '#fbbf24',
-              borderRadius: '50%',
               boxShadow: '0 0 30px rgba(251, 191, 36, 0.5)',
             }}
-          >
-            <span tw="text-5xl">🎩</span>
-          </div>
+          />
         </div>
 
         {/* Title */}
         <h1
-          tw="text-6xl font-bold mb-4"
+          tw="text-5xl font-bold mb-6"
           style={{
             color: '#60a5fa',
             fontFamily: 'system-ui, -apple-system',
@@ -84,12 +81,12 @@ export async function GET(request: NextRequest) {
         <div
           tw="flex items-center justify-center mb-6"
           style={{
-            fontSize: '120px',
+            fontSize: '140px',
             fontWeight: '900',
-            color: '#fbbf24',
+            color: '#4ade80',
             fontFamily: 'system-ui, -apple-system',
             lineHeight: '1',
-            textShadow: '0 0 40px rgba(251, 191, 36, 0.6)',
+            textShadow: '0 0 40px rgba(74, 222, 128, 0.6)',
           }}
         >
           {formattedCounter}

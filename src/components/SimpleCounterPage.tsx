@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { 
   useAccount, 
   useWriteContract, 
@@ -17,9 +17,10 @@ import { renderError } from '~/lib/errorUtils';
 import { APP_URL } from '~/lib/constants';
 import { jesseCounterAbi } from '~/contracts/abi';
 import { config } from '~/components/providers/WagmiProvider';
+import { TipModal } from './ui/wallet/TipModal';
 
 const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
-const CHARACTER_IMAGE_URL = 'https://pbs.twimg.com/profile_images/1879556312822120448/QngrqCSC_400x400.jpg';
+const CHARACTER_IMAGE_URL = '/icon.png';
 
 /**
  * SimpleCounterPage component displays a minimal counter interface.
@@ -36,6 +37,8 @@ export function SimpleCounterPage() {
   // --- State ---
   const [showConfetti, setShowConfetti] = useState(false);
   const [previousTotalCount, setPreviousTotalCount] = useState<bigint | undefined>(undefined);
+  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
   const totalCountRef = useRef<HTMLDivElement>(null);
 
   // --- Hooks ---
@@ -77,6 +80,14 @@ export function SimpleCounterPage() {
     ...(address && { args: [address as `0x${string}`] }),
     query: { enabled: !!address },
   }) as { data: string | undefined; refetch: () => void };
+
+  // Get increment cooldown period
+  const { data: incrementCooldown } = useReadContract({
+    address: JESSE_CONTRACT,
+    abi: jesseCounterAbi,
+    functionName: 'incrementCooldown',
+    query: { enabled: true },
+  }) as { data: bigint | undefined };
 
   // Check if user can share (daily cooldown)
   const { data: canShareNow, refetch: refetchCanShare } = useReadContract({
@@ -157,10 +168,50 @@ export function SimpleCounterPage() {
     setPreviousTotalCount(totalCount);
   }, [totalCount, previousTotalCount]);
 
-  // Calculate jesse balance: 1 per increment + 1 per share (daily)
-  // Note: Share reward is now on-chain, so we don't need to add it here
-  // The balance shown is just from increments
-  const jesseBalance = userCount ? Number(userCount) : 0;
+  // Check if user can increment (cooldown check)
+  const canIncrement = useMemo(() => {
+    if (!lastIncrement || !incrementCooldown) return true; // Allow if no data yet
+    const numTimestamp = parseInt(lastIncrement.toString(), 10);
+    if (isNaN(numTimestamp) || numTimestamp <= 0) return true; // Never incremented, allow
+    const cooldownSeconds = Number(incrementCooldown);
+    const timeSinceLastIncrement = currentTime - numTimestamp;
+    return timeSinceLastIncrement >= cooldownSeconds;
+  }, [lastIncrement, incrementCooldown, currentTime]);
+
+  // Calculate time remaining until next increment
+  const timeUntilNextIncrement = useMemo(() => {
+    if (!lastIncrement || !incrementCooldown || canIncrement) return null;
+    const numTimestamp = parseInt(lastIncrement.toString(), 10);
+    if (isNaN(numTimestamp) || numTimestamp <= 0) return null;
+    const cooldownSeconds = Number(incrementCooldown);
+    const timeSinceLastIncrement = currentTime - numTimestamp;
+    const timeRemaining = cooldownSeconds - timeSinceLastIncrement;
+    
+    if (timeRemaining <= 0) return null;
+
+    const hours = Math.floor(timeRemaining / 3600);
+    const minutes = Math.floor((timeRemaining % 3600) / 60);
+    const seconds = timeRemaining % 60;
+
+    const parts: string[] = [];
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0 && parts.length === 0) parts.push(`${seconds}s`);
+
+    return parts.length > 0 ? parts.join(" ") : null;
+  }, [lastIncrement, incrementCooldown, canIncrement, currentTime]);
+
+  /**
+   * Update current time every second for cooldown countdown
+   */
+  useEffect(() => {
+    if (!canIncrement && isConnected) {
+      const interval = setInterval(() => {
+        setCurrentTime(Math.floor(Date.now() / 1000));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [canIncrement, isConnected]);
 
   // Format time elapsed since last increment
   const formatTimeElapsed = (timestamp: string | number | undefined) => {
@@ -290,6 +341,29 @@ export function SimpleCounterPage() {
         paddingBottom: context?.client.safeAreaInsets?.bottom ? `${context.client.safeAreaInsets.bottom + 24}px` : '24px',
       }}
     >
+      {/* Tip Button - Top Right */}
+      <div 
+        className="fixed top-4 right-4 z-50"
+        style={{
+          top: context?.client.safeAreaInsets?.top ? `${context.client.safeAreaInsets.top + 16}px` : '16px',
+        }}
+      >
+        <Button
+          onClick={() => setIsTipModalOpen(true)}
+          variant="outline"
+          size="sm"
+          className="!bg-white/90 hover:!bg-white !text-[#0052FF] !border-[#0052FF] !border-2 shadow-lg backdrop-blur-sm"
+        >
+          💝 Tip
+        </Button>
+      </div>
+
+      {/* Tip Modal */}
+      <TipModal
+        isOpen={isTipModalOpen}
+        onClose={() => setIsTipModalOpen(false)}
+      />
+
       {/* Confetti effect */}
       {showConfetti && <ConfettiEffect />}
 
@@ -340,16 +414,6 @@ export function SimpleCounterPage() {
           }}
         >
           {totalCount?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') ?? '0'}
-        </div>
-      </div>
-
-      {/* Jesse Balance */}
-      <div className="mb-8 text-center relative z-10">
-        <div className="text-2xl font-bold text-[#0052FF] mb-1">
-          {jesseBalance} $jesse
-        </div>
-        <div className="text-xs text-[#475569]">
-          From increments (shares rewarded separately)
         </div>
       </div>
 
@@ -404,7 +468,7 @@ export function SimpleCounterPage() {
         ) : (
           <Button
             onClick={handleIncrement}
-            disabled={isPending || isConfirming}
+            disabled={isPending || isConfirming || !canIncrement}
             isLoading={isPending || isConfirming}
             className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 disabled:!bg-[#CBD5E1] disabled:!text-[#64748B] disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-[0_8px_0_0_#A3A3A3] disabled:hover:translate-y-0 relative"
             style={{
@@ -432,10 +496,19 @@ export function SimpleCounterPage() {
               }
             }}
           >
-            {isPending ? 'Processing...' : isConfirming ? 'Confirming...' : 'Increment'}
+            {isPending ? 'Processing...' : isConfirming ? 'Confirming...' : !canIncrement ? `Wait ${timeUntilNextIncrement || ''}` : 'Increment'}
           </Button>
         )}
       </div>
+
+      {/* Show cooldown message if user can't increment */}
+      {isConnected && address && !canIncrement && (
+        <div className="mb-4 w-full max-w-[320px] relative z-10">
+          <p className="text-sm text-[#475569] text-center">
+            Cooldown: You can increment again in {timeUntilNextIncrement || 'a moment'}
+          </p>
+        </div>
+      )}
 
       {/* Share Button - show if user can share (once per day) */}
       {isConnected && address && canShareNow && (
@@ -447,8 +520,8 @@ export function SimpleCounterPage() {
             className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSharePending || isShareConfirming 
-              ? 'Sharing...' 
-              : 'Share App (+1 $jesse/day)'}
+              ? 'Claiming...' 
+              : 'Claim (+1 $jesse/day)'}
           </Button>
         </div>
       )}
