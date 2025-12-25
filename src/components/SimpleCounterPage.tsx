@@ -42,6 +42,7 @@ export function SimpleCounterPage() {
   const [hasShared, setHasShared] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const totalCountRef = useRef<HTMLDivElement>(null);
+  const processedHashRef = useRef<string | undefined>(undefined);
 
   // --- Hooks ---
   const { context, actions, added } = useMiniApp();
@@ -64,7 +65,10 @@ export function SimpleCounterPage() {
     address: JESSE_CONTRACT,
     abi: jesseCounterAbi,
     functionName: 'getTotalCount',
-    query: { enabled: true },
+    query: { 
+      enabled: true,
+      refetchInterval: false, // Disable auto-refetch, we'll do it manually
+    },
   }) as { data: bigint | undefined; refetch: () => void };
 
   const { data: userCount, refetch: refetchUserCount } = useReadContract({
@@ -126,21 +130,63 @@ export function SimpleCounterPage() {
    * Refetch counter values after transaction confirmation
    */
   useEffect(() => {
-    if (isConfirmed) {
-      refetchTotalCount();
-      refetchUserCount();
-      refetchLastIncrement();
+    if (isConfirmed && hash && processedHashRef.current !== hash) {
+      // Mark this hash as processed to avoid duplicate processing
+      processedHashRef.current = hash;
       
-      // Trigger confetti animation
+      // Trigger confetti animation immediately
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
+      
+      // Refetch with delays to ensure blockchain state is updated
+      // Sometimes the state takes a moment to update after confirmation
+      const refetchWithRetry = async () => {
+        try {
+          // First refetch immediately
+          await Promise.all([
+            refetchTotalCount(),
+            refetchUserCount(),
+            refetchLastIncrement(),
+          ]);
+        } catch (error) {
+          console.error('Error refetching after increment:', error);
+        }
+        
+        // Retry after 1 second
+        setTimeout(async () => {
+          try {
+            await Promise.all([
+              refetchTotalCount(),
+              refetchUserCount(),
+              refetchLastIncrement(),
+            ]);
+          } catch (error) {
+            console.error('Error refetching after increment (retry 1):', error);
+          }
+        }, 1000);
+        
+        // Retry after 2 seconds
+        setTimeout(async () => {
+          try {
+            await Promise.all([
+              refetchTotalCount(),
+              refetchUserCount(),
+              refetchLastIncrement(),
+            ]);
+          } catch (error) {
+            console.error('Error refetching after increment (retry 2):', error);
+          }
+        }, 2000);
+      };
+      
+      refetchWithRetry();
       
       // If app not added yet, prompt to add after increment
       if (!added) {
         actions.addMiniApp();
       }
     }
-  }, [isConfirmed, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
+  }, [isConfirmed, hash, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
 
   /**
    * Refetch share status after claim transaction confirmation
