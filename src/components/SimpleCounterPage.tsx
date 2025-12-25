@@ -155,8 +155,12 @@ export function SimpleCounterPage() {
    */
   const handleShare = useCallback(async () => {
     try {
+      const formattedCount = totalCount
+        ? totalCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+        : '0';
+      
       await actions.composeCast({
-        text: `I have just incremented $jesse counter and I am based`,
+        text: `Just incremented the $jesse counter to ${formattedCount}! I am based now 🟦 and miniapp by @vaibhavmule`,
         embeds: [`${APP_URL}/simple`],
       });
       
@@ -165,7 +169,7 @@ export function SimpleCounterPage() {
     } catch (error) {
       console.error('Failed to share:', error);
     }
-  }, [actions]);
+  }, [actions, totalCount]);
 
   // --- Connect/Switch Handlers ---
   const { connect } = useConnect();
