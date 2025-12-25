@@ -5,14 +5,7 @@ import { APP_NAME } from "~/lib/constants";
 import sdk from "@farcaster/miniapp-sdk";
 import { useMiniApp } from "@neynar/react";
 
-type HeaderProps = {
-  neynarUser?: {
-    fid: number;
-    score: number;
-  } | null;
-};
-
-export function Header({ neynarUser }: HeaderProps) {
+export function Header() {
   const { context } = useMiniApp();
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -59,13 +52,6 @@ export function Header({ neynarUser }: HeaderProps) {
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     FID: {context.user.fid}
                   </p>
-                  {neynarUser && (
-                    <>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Neynar Score: {neynarUser.score}
-                      </p>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
