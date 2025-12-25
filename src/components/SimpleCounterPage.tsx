@@ -39,6 +39,8 @@ export function SimpleCounterPage() {
   const [previousTotalCount, setPreviousTotalCount] = useState<bigint | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [hasShared, setHasShared] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const totalCountRef = useRef<HTMLDivElement>(null);
 
   // --- Hooks ---
@@ -141,11 +143,13 @@ export function SimpleCounterPage() {
   }, [isConfirmed, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
 
   /**
-   * Refetch share status after share transaction confirmation
+   * Refetch share status after claim transaction confirmation
    */
   useEffect(() => {
     if (isShareConfirmed) {
       refetchCanShare();
+      // Reset share state after successful claim
+      setHasShared(false);
       // Trigger confetti animation for share reward
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
@@ -258,7 +262,7 @@ export function SimpleCounterPage() {
   }, [isConnected, writeContract]);
 
   /**
-   * Handles sharing the app to earn +1 jesse token (once per day).
+   * Handles sharing the app on Farcaster.
    */
   const handleShare = useCallback(async () => {
     if (!isConnected) {
@@ -266,7 +270,7 @@ export function SimpleCounterPage() {
     }
 
     try {
-      // 1. First, share on Farcaster
+      setIsSharing(true);
       const formattedCount = totalCount
         ? totalCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
         : '0';
@@ -276,16 +280,33 @@ export function SimpleCounterPage() {
         embeds: [`${APP_URL}/simple`],
       });
       
-      // 2. Then, claim the on-chain reward (1 JESSE per day)
+      // Mark as shared so we can show the claim button
+      setHasShared(true);
+    } catch (error) {
+      console.error('Failed to share:', error);
+    } finally {
+      setIsSharing(false);
+    }
+  }, [isConnected, actions, totalCount]);
+
+  /**
+   * Handles claiming the on-chain reward after sharing (1 JESSE per day).
+   */
+  const handleClaim = useCallback(async () => {
+    if (!isConnected) {
+      return;
+    }
+
+    try {
       await writeShareContract({
         address: JESSE_CONTRACT,
         abi: jesseCounterAbi,
         functionName: 'shareApp',
       });
     } catch (error) {
-      console.error('Failed to share:', error);
+      console.error('Failed to claim:', error);
     }
-  }, [isConnected, actions, totalCount, writeShareContract]);
+  }, [isConnected, writeShareContract]);
 
   // --- Connect/Switch Handlers ---
   const { connect } = useConnect();
@@ -510,18 +531,32 @@ export function SimpleCounterPage() {
         </div>
       )}
 
-      {/* Share Button - show if user can share (once per day) */}
-      {isConnected && address && canShareNow && (
+      {/* Share Button - show if user can share and hasn't shared yet */}
+      {isConnected && address && canShareNow && !hasShared && (
         <div className="mb-4 w-full max-w-[320px] relative z-10">
           <Button
             onClick={handleShare}
+            disabled={isSharing}
+            variant="outline"
+            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSharing ? 'Sharing...' : 'Share'}
+          </Button>
+        </div>
+      )}
+
+      {/* Claim Button - show after user has shared */}
+      {isConnected && address && canShareNow && hasShared && (
+        <div className="mb-4 w-full max-w-[320px] relative z-10">
+          <Button
+            onClick={handleClaim}
             disabled={isSharePending || isShareConfirming}
             variant="outline"
             className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSharePending || isShareConfirming 
               ? 'Claiming...' 
-              : 'Share to Claim'}
+              : 'Claim'}
           </Button>
         </div>
       )}
