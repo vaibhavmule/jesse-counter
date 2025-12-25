@@ -521,7 +521,7 @@ export function SimpleCounterPage() {
           >
             {isSharePending || isShareConfirming 
               ? 'Claiming...' 
-              : 'Claim (+1 $jesse/day)'}
+              : 'Share to Claim'}
           </Button>
         </div>
       )}

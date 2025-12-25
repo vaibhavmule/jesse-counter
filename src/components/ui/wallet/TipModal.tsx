@@ -87,11 +87,11 @@ export function TipModal({
       />
 
       {/* Modal - centered both horizontally and vertically */}
-      <div className="relative w-full max-w-md rounded-3xl border border-white/60 bg-white/95 p-6 shadow-2xl backdrop-blur dark:border-white/10 dark:bg-gray-900/95">
+      <div className="relative w-full max-w-md rounded-3xl border-2 border-[#FFD400]/30 bg-white p-6 shadow-2xl backdrop-blur" style={{ boxShadow: '0 12px 40px rgba(255, 212, 0, 0.2)' }}>
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="absolute right-4 top-4 z-10 rounded-full p-1 text-[#64748B] transition-colors hover:bg-[#FFD400]/20 hover:text-[#0F172A]"
           aria-label="Close"
         >
           <X className="h-5 w-5" />
@@ -101,14 +101,14 @@ export function TipModal({
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-center gap-2">
-            <span className="text-2xl">❤️</span>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <span className="text-2xl">💝</span>
+            <h2 className="text-xl font-semibold text-[#0F172A]">
               Support Developer
             </h2>
           </div>
 
           {/* Description */}
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-center text-sm text-[#475569]">
             Help keep $JESSE Counter running! Your support helps pay for servers, development, and improving the app.
           </p>
 
@@ -122,8 +122,8 @@ export function TipModal({
                   onClick={() => handleAmountSelect(amount)}
                   className={`rounded-xl px-4 py-3 text-sm font-medium transition-all ${
                     isSelected
-                      ? "bg-gradient-to-r from-red-500 to-green-500 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      ? "bg-[#FFD400] hover:bg-[#FACC15] text-[#0F172A] font-bold shadow-lg"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   ${amount}
@@ -134,7 +134,7 @@ export function TipModal({
 
           {/* Custom amount */}
           <div className="space-y-2">
-            <p className="text-xs text-gray-600 dark:text-gray-400">
+            <p className="text-xs text-[#475569]">
               Or enter custom amount
             </p>
             <input
@@ -145,27 +145,27 @@ export function TipModal({
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
               onFocus={handleCustomAmountFocus}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+              className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-3 text-sm text-[#0F172A] placeholder:text-gray-400 focus:border-[#FFD400] focus:outline-none focus:ring-2 focus:ring-[#FFD400]/20"
             />
           </div>
 
           {/* Payment info */}
-          <div className="space-y-2 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+          <div className="space-y-2 rounded-xl border-2 border-[#FFD400]/20 bg-[#FFD400]/10 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-[#475569]">
                 Payment
               </span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-semibold text-[#0F172A]">
                 {finalAmount} USDC
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-[#475569]">
                 Network
               </span>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="h-3 w-3 rounded-full bg-[#0052FF]"></div>
+                <span className="text-sm font-medium text-[#0F172A]">
                   Base
                 </span>
               </div>
@@ -180,12 +180,12 @@ export function TipModal({
             amount={finalAmount}
             variant="primary"
             size="lg"
-            className="w-full"
+            className="w-full [&_button]:!bg-[#FFD400] [&_button]:hover:!bg-[#FACC15] [&_button]:active:!bg-[#EAB308] [&_button]:!text-[#0F172A] [&_button]:!font-bold [&_button]:!rounded-2xl"
             onSuccess={onClose}
           />
 
           {/* Disclaimer */}
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-center text-xs text-[#64748B]">
             Payments are made in USDC on Base network
           </p>
         </div>
