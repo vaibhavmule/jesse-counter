@@ -42,25 +42,25 @@ export async function GET(request: NextRequest) {
       <div
         tw="flex h-full w-full flex-col items-center justify-center relative"
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
+          background: '#F7F7F7',
         }}
       >
-        {/* Glow effect background */}
-        <div
-          tw="absolute inset-0"
-          style={{
-            background: 'radial-gradient(circle at center, rgba(251, 191, 36, 0.1) 0%, transparent 70%)',
-          }}
-        />
-
         {/* Character image */}
-        <div tw="flex items-center justify-center mb-8">
+        <div tw="flex items-center justify-center mb-8 relative">
+          {/* Yellow glow effect */}
+          <div
+            tw="absolute inset-0 flex items-center justify-center"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 212, 0, 0.3) 0%, transparent 70%)',
+            }}
+          />
           <img
             src={`${APP_URL}/icon.png`}
             alt="Jesse"
-            tw="w-24 h-24 rounded-full"
+            tw="w-28 h-28 rounded-full relative z-10"
             style={{
-              boxShadow: '0 0 30px rgba(251, 191, 36, 0.5)',
+              border: '4px solid #FFD400',
+              boxShadow: '0 8px 24px rgba(255, 212, 0, 0.3)',
             }}
           />
         </div>
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         <h1
           tw="text-5xl font-bold mb-6"
           style={{
-            color: '#60a5fa',
+            color: '#0F172A',
             fontFamily: 'system-ui, -apple-system',
             letterSpacing: '0.05em',
           }}
@@ -83,10 +83,10 @@ export async function GET(request: NextRequest) {
           style={{
             fontSize: '140px',
             fontWeight: '900',
-            color: '#4ade80',
+            color: '#FFD400',
             fontFamily: 'system-ui, -apple-system',
             lineHeight: '1',
-            textShadow: '0 0 40px rgba(74, 222, 128, 0.6)',
+            textShadow: '0 4px 12px rgba(255, 212, 0, 0.3)',
           }}
         >
           {formattedCounter}
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
           <p
             tw="text-3xl mb-4"
             style={{
-              color: '#e2e8f0',
+              color: '#0F172A',
               fontFamily: 'system-ui, -apple-system',
             }}
           >
@@ -109,8 +109,7 @@ export async function GET(request: NextRequest) {
         <p
           tw="text-xl"
           style={{
-            color: '#a78bfa',
-            opacity: 0.95,
+            color: '#475569',
             fontFamily: 'system-ui, -apple-system',
           }}
         >

@@ -531,7 +531,7 @@ export function SimpleCounterPage() {
         </div>
       )}
 
-      {/* Share Button - show if user can share and hasn't shared yet */}
+      {/* Share to Claim Button - show if user can share and hasn't shared yet */}
       {isConnected && address && canShareNow && !hasShared && (
         <div className="mb-4 w-full max-w-[320px] relative z-10">
           <Button
@@ -540,7 +540,7 @@ export function SimpleCounterPage() {
             variant="outline"
             className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSharing ? 'Sharing...' : 'Share'}
+            {isSharing ? 'Sharing...' : 'Share to Claim'}
           </Button>
         </div>
       )}
@@ -561,12 +561,17 @@ export function SimpleCounterPage() {
         </div>
       )}
       
-      {/* Show message if user already shared today */}
+      {/* Share Button - show during cooldown (no claim, no message) */}
       {isConnected && address && canShareNow === false && (
         <div className="mb-4 w-full max-w-[320px] relative z-10">
-          <p className="text-sm text-[#475569] text-center">
-            You can share again in 24 hours to earn another 1 $jesse
-          </p>
+          <Button
+            onClick={handleShare}
+            disabled={isSharing}
+            variant="outline"
+            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSharing ? 'Sharing...' : 'Share'}
+          </Button>
         </div>
       )}
 
