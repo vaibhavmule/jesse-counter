@@ -1,5 +1,4 @@
 import { ImageResponse } from 'next/og';
-import { NextRequest } from 'next/server';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 import { jesseCounterAbi } from '~/contracts/abi';
@@ -28,7 +27,7 @@ async function getCounterValue(): Promise<string> {
   }
 }
 
-export async function GET(request: NextRequest) {
+export default async function Image() {
   const counterValue = await getCounterValue();
   const formattedCounter = counterValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
