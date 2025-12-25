@@ -31,7 +31,7 @@ const CHARACTER_IMAGE_URL = '/icon.png';
  * - Counter display
  * - Increment button (awards 1 jesse token)
  * - Jesse token balance display
- * - Share functionality (awards +1 jesse token)
+ * - Share functionality
  */
 export function SimpleCounterPage() {
   // --- State ---
@@ -39,8 +39,8 @@ export function SimpleCounterPage() {
   const [previousTotalCount, setPreviousTotalCount] = useState<bigint | undefined>(undefined);
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
-  const [hasShared, setHasShared] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showShareButton, setShowShareButton] = useState(false);
   const totalCountRef = useRef<HTMLDivElement>(null);
   const processedHashRef = useRef<string | undefined>(undefined);
 
@@ -95,25 +95,6 @@ export function SimpleCounterPage() {
     query: { enabled: true },
   }) as { data: bigint | undefined };
 
-  // Check if user can share (daily cooldown)
-  const { data: canShareNow, refetch: refetchCanShare } = useReadContract({
-    address: JESSE_CONTRACT,
-    abi: jesseCounterAbi,
-    functionName: 'canShare',
-    ...(address && { args: [address as `0x${string}`] }),
-    query: { enabled: !!address },
-  }) as { data: boolean | undefined; refetch: () => void };
-
-  // Share transaction hooks
-  const {
-    writeContract: writeShareContract,
-    data: shareHash,
-    error: _shareError,
-    isPending: isSharePending,
-  } = useWriteContract();
-
-  const { isLoading: isShareConfirming, isSuccess: isShareConfirmed } =
-    useWaitForTransactionReceipt({ hash: shareHash });
 
   // --- Effects ---
   /**
@@ -185,22 +166,12 @@ export function SimpleCounterPage() {
       if (!added) {
         actions.addMiniApp();
       }
+      
+      // Show share button after successful increment
+      setShowShareButton(true);
     }
   }, [isConfirmed, hash, refetchTotalCount, refetchUserCount, refetchLastIncrement, added, actions]);
 
-  /**
-   * Refetch share status after claim transaction confirmation
-   */
-  useEffect(() => {
-    if (isShareConfirmed) {
-      refetchCanShare();
-      // Reset share state after successful claim
-      setHasShared(false);
-      // Trigger confetti animation for share reward
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-    }
-  }, [isShareConfirmed, refetchCanShare]);
 
   /**
    * Animate number change when total count increases
@@ -331,33 +302,14 @@ export function SimpleCounterPage() {
         embeds: [shareUrl],
       });
       
-      // Mark as shared so we can show the claim button
-      setHasShared(true);
+      // Hide share button after sharing
+      setShowShareButton(false);
     } catch (error) {
       console.error('Failed to share:', error);
     } finally {
       setIsSharing(false);
     }
   }, [isConnected, actions, totalCount]);
-
-  /**
-   * Handles claiming the on-chain reward after sharing (1 JESSE per day).
-   */
-  const handleClaim = useCallback(async () => {
-    if (!isConnected) {
-      return;
-    }
-
-    try {
-      await writeShareContract({
-        address: JESSE_CONTRACT,
-        abi: jesseCounterAbi,
-        functionName: 'shareApp',
-      });
-    } catch (error) {
-      console.error('Failed to claim:', error);
-    }
-  }, [isConnected, writeShareContract]);
 
   // --- Connect/Switch Handlers ---
   const { connect } = useConnect();
@@ -582,38 +534,8 @@ export function SimpleCounterPage() {
         </div>
       )}
 
-      {/* Share to Claim Button - show if user can share and hasn't shared yet */}
-      {isConnected && address && canShareNow && !hasShared && (
-        <div className="mb-4 w-full max-w-[320px] relative z-10">
-          <Button
-            onClick={handleShare}
-            disabled={isSharing}
-            variant="outline"
-            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSharing ? 'Sharing...' : 'Share to Claim'}
-          </Button>
-        </div>
-      )}
-
-      {/* Claim Button - show after user has shared */}
-      {isConnected && address && canShareNow && hasShared && (
-        <div className="mb-4 w-full max-w-[320px] relative z-10">
-          <Button
-            onClick={handleClaim}
-            disabled={isSharePending || isShareConfirming}
-            variant="outline"
-            className="border-2 border-[#0052FF] text-[#0052FF] hover:bg-[rgba(0,82,255,0.08)] bg-transparent text-sm py-3 rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSharePending || isShareConfirming 
-              ? 'Claiming...' 
-              : 'Claim'}
-          </Button>
-        </div>
-      )}
-      
-      {/* Share Button - show during cooldown (no claim, no message) */}
-      {isConnected && address && canShareNow === false && (
+      {/* Share Button - show after increment */}
+      {isConnected && address && showShareButton && (
         <div className="mb-4 w-full max-w-[320px] relative z-10">
           <Button
             onClick={handleShare}
