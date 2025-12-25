@@ -1,5 +1,6 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
+  "ignorePatterns": ["lib/**/*", "scripts/**/*", "broadcast/**/*", "cache/**/*", "artifacts/**/*"],
   "rules": {
     // Disable img warnings since you're using them intentionally in specific contexts
     "@next/next/no-img-element": "off",
