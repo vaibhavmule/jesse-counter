@@ -5,7 +5,7 @@ import { useMiniApp } from "@neynar/react";
 import { Header } from "~/components/ui/Header";
 import { Footer } from "~/components/ui/Footer";
 import { HomeTab, ActionsTab, ContextTab, WalletTab } from "~/components/ui/tabs";
-import { USE_WALLET } from "~/lib/constants";
+import { USE_WALLET, APP_NAME } from "~/lib/constants";
 import { useNeynarUser } from "../hooks/useNeynarUser";
 
 // --- Types ---
@@ -42,7 +42,7 @@ export interface AppProps {
  * - Loading states for async operations
  * 
  * @param props - Component props
- * @param props.title - Optional title for the mini app (defaults to "Neynar Starter Kit")
+ * @param props.title - Optional title for the mini app (defaults to APP_NAME)
  * 
  * @example
  * ```tsx
@@ -50,7 +50,7 @@ export interface AppProps {
  * ```
  */
 export default function App(
-  { title }: AppProps = { title: "Neynar Starter Kit" }
+  { title }: AppProps = { title: APP_NAME }
 ) {
   // --- Hooks ---
   const {
