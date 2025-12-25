@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
   const user = fid ? await getNeynarUser(Number(fid)) : null;
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div tw="flex h-full w-full flex-col justify-center items-center relative bg-primary">
         {user?.pfp_url && (
@@ -26,4 +26,11 @@ export async function GET(request: NextRequest) {
       height: 800,
     }
   );
+
+  // Add cache headers to prevent caching
+  imageResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  imageResponse.headers.set('Pragma', 'no-cache');
+  imageResponse.headers.set('Expires', '0');
+  
+  return imageResponse;
 }
