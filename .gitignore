@@ -46,3 +46,9 @@ artifacts
 coverage
 coverage.json
 typechain-types
+
+# foundry
+broadcast/
+cache/
+out/
+forge-cache/
