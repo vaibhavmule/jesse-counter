@@ -160,7 +160,7 @@ export function SimpleCounterPage() {
         : '0';
       
       await actions.composeCast({
-        text: `Just incremented the $jesse counter to ${formattedCount}! I am based now 🟦 and miniapp by @vaibhavmule`,
+        text: `Just incremented the @jesse.base.eth counter to ${formattedCount}! I am based now 🟦`,
         embeds: [`${APP_URL}/simple`],
       });
       
