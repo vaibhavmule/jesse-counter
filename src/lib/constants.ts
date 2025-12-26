@@ -50,7 +50,31 @@ export const APP_NAME: string = '$JESSE Counter';
  * A brief description of the mini app's functionality.
  * Used in app store listings and metadata.
  */
-export const APP_DESCRIPTION: string = '$JESSE Counter';
+export const APP_DESCRIPTION: string = 'Increment the $JESSE counter and join the community!';
+
+/**
+ * Subtitle for the mini app.
+ * A shorter tagline or subtitle for app listings.
+ */
+export const APP_SUBTITLE: string = 'Join the $JESSE counter community';
+
+/**
+ * Tagline for the mini app.
+ * A catchy one-liner describing the app.
+ */
+export const APP_TAGLINE: string = 'Be based, increment $JESSE';
+
+/**
+ * Hero image URL for the mini app.
+ * Used for app store listings and marketing materials.
+ */
+export const APP_HERO_IMAGE_URL: string = `${APP_URL}/splash.png`;
+
+/**
+ * Screenshot URLs for the mini app.
+ * Array of screenshot images showcasing the app.
+ */
+export const APP_SCREENSHOT_URLS: string[] = [];
 
 /**
  * The primary category for the mini app.
