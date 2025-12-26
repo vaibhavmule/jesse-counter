@@ -45,18 +45,28 @@ export function getMiniAppEmbedMetadata(ogImageUrl?: string) {
 }
 
 export async function getFarcasterDomainManifest(): Promise<Manifest> {
-  return {
+  // Enforce Base Directory: max 5 tags
+  const normalizedTags: string[] = (APP_TAGS ?? []).slice(0, 5);
+
+  const miniappConfig = {
+    version: '1',
+    name: APP_NAME ?? 'jesse counter',
+    homeUrl: APP_URL,
+    iconUrl: APP_ICON_URL,
+    imageUrl: APP_OG_IMAGE_URL,
+    buttonTitle: APP_BUTTON_TEXT ?? 'Launch Mini App',
+    splashImageUrl: APP_SPLASH_URL,
+    splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
+    webhookUrl: APP_WEBHOOK_URL,
+    // Additional fields used by Base App Directory
+    primaryCategory: APP_PRIMARY_CATEGORY,
+    tags: normalizedTags,
+  } as unknown as Manifest['miniapp'];
+
+  const manifest: any = {
     accountAssociation: APP_ACCOUNT_ASSOCIATION!,
-    miniapp: {
-      version: '1',
-      name: APP_NAME ?? 'jesse counter',
-      homeUrl: APP_URL,
-      iconUrl: APP_ICON_URL,
-      imageUrl: APP_OG_IMAGE_URL,
-      buttonTitle: APP_BUTTON_TEXT ?? 'Launch Mini App',
-      splashImageUrl: APP_SPLASH_URL,
-      splashBackgroundColor: APP_SPLASH_BACKGROUND_COLOR,
-      webhookUrl: APP_WEBHOOK_URL,
-    },
+    miniapp: miniappConfig,
   };
+
+  return manifest as Manifest;
 }

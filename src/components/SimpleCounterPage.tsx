@@ -298,7 +298,7 @@ export function SimpleCounterPage() {
       const shareUrl = `${APP_URL}?count=${countToShare.toString()}`;
       
       await actions.composeCast({
-        text: `Just incremented the $jesse counter to ${formattedCount}! I am based now 🟦`,
+        text: `Just incremented the $JESSE Counter to ${formattedCount}! I am based now 🟦`,
         embeds: [shareUrl],
       });
       
