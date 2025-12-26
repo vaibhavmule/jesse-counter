@@ -54,7 +54,7 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
 
   const miniappConfig = {
     version: '1',
-    name: APP_NAME ?? '$JESSE Counter',
+    name: APP_NAME ?? 'JESSE Counter',
     homeUrl: APP_URL,
     iconUrl: APP_ICON_URL,
     imageUrl: APP_OG_IMAGE_URL,
