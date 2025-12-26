@@ -14,3 +14,4 @@ export default function SimpleCounterPageClient() {
   return <SimpleCounterPage />;
 }
 
+
