@@ -342,6 +342,12 @@ export function SimpleCounterPage() {
     switchChain({ chainId: base.id });
   }, [switchChain]);
 
+  // --- Banner Logic ---
+  const handleDismissBanner = useCallback(() => {
+    setBannerDismissed(true);
+    localStorage.setItem('jesse-counter-banner-dismissed', 'true');
+  }, []);
+
   // --- Checks ---
   // Only works in Farcaster client (allow for testing in development)
   // In production, this should be enforced
@@ -372,15 +378,10 @@ export function SimpleCounterPage() {
     );
   }
 
-  // --- Banner Logic ---
+  // --- Banner Logic (continued) ---
   const shouldShowBanner = added && 
     !bannerDismissed && 
     Date.now() < BANNER_EXPIRY_TIMESTAMP;
-
-  const handleDismissBanner = useCallback(() => {
-    setBannerDismissed(true);
-    localStorage.setItem('jesse-counter-banner-dismissed', 'true');
-  }, []);
 
   // --- Render ---
   const bannerHeight = shouldShowBanner ? 80 : 0;
