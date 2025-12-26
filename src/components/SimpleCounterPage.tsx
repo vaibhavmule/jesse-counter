@@ -22,6 +22,11 @@ import { TipModal } from './ui/wallet/TipModal';
 const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
 const CHARACTER_IMAGE_URL = '/icon.png';
 
+// Banner expiry: 24 hours from when each user first loads the page
+// Note: If you want a global 24-hour window from deployment, replace Date.now() with a hardcoded timestamp
+const BANNER_START_TIMESTAMP = Date.now();
+const BANNER_EXPIRY_TIMESTAMP = BANNER_START_TIMESTAMP + (24 * 60 * 60 * 1000); // 24 hours in milliseconds
+
 /**
  * SimpleCounterPage component displays a minimal counter interface.
  * 
@@ -41,6 +46,7 @@ export function SimpleCounterPage() {
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [showShareButton, setShowShareButton] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const totalCountRef = useRef<HTMLDivElement>(null);
   const processedHashRef = useRef<string | undefined>(undefined);
 
@@ -97,6 +103,16 @@ export function SimpleCounterPage() {
 
 
   // --- Effects ---
+  /**
+   * Check if banner was dismissed in localStorage
+   */
+  useEffect(() => {
+    const dismissed = localStorage.getItem('jesse-counter-banner-dismissed');
+    if (dismissed === 'true') {
+      setBannerDismissed(true);
+    }
+  }, []);
+
   /**
    * Auto-prompt to add app and enable notifications on first load
    */
@@ -356,20 +372,75 @@ export function SimpleCounterPage() {
     );
   }
 
+  // --- Banner Logic ---
+  const shouldShowBanner = added && 
+    !bannerDismissed && 
+    Date.now() < BANNER_EXPIRY_TIMESTAMP;
+
+  const handleDismissBanner = useCallback(() => {
+    setBannerDismissed(true);
+    localStorage.setItem('jesse-counter-banner-dismissed', 'true');
+  }, []);
+
   // --- Render ---
+  const bannerHeight = shouldShowBanner ? 80 : 0;
+  const basePaddingTop = context?.client.safeAreaInsets?.top ? context.client.safeAreaInsets.top + 24 : 24;
+  
   return (
     <div 
       className="min-h-screen bg-[#F7F7F7] flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden"
       style={{
-        paddingTop: context?.client.safeAreaInsets?.top ? `${context.client.safeAreaInsets.top + 24}px` : '24px',
+        paddingTop: `${basePaddingTop + bannerHeight}px`,
         paddingBottom: context?.client.safeAreaInsets?.bottom ? `${context.client.safeAreaInsets.bottom + 24}px` : '24px',
       }}
     >
+      {/* Re-add App Banner - Shows for 24 hours */}
+      {shouldShowBanner && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-100 border-b-4 border-yellow-500 shadow-lg">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="h-5 w-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-yellow-800 mb-1">
+                    Please re-add the app for notifications
+                  </p>
+                  <p className="text-xs text-yellow-700 mb-2">
+                    Remove and re-add JESSE Counter to enable notifications. This ensures you receive updates.
+                  </p>
+                  <button
+                    onClick={actions.addMiniApp}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-semibold py-1.5 px-3 rounded-md transition-colors"
+                  >
+                    Re-add Mini App
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={handleDismissBanner}
+                className="flex-shrink-0 text-yellow-600 hover:text-yellow-800 transition-colors"
+                aria-label="Dismiss banner"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tip Button - Top Right */}
       <div 
-        className="fixed top-4 right-4 z-50"
+        className="fixed right-4 z-50"
         style={{
-          top: context?.client.safeAreaInsets?.top ? `${context.client.safeAreaInsets.top + 16}px` : '16px',
+          top: context?.client.safeAreaInsets?.top 
+            ? `${bannerHeight + context.client.safeAreaInsets.top + 16}px` 
+            : `${bannerHeight + 16}px`,
         }}
       >
         <Button
