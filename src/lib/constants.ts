@@ -47,6 +47,12 @@ export const APP_URL: string = getAppUrl();
 export const APP_NAME: string = '$JESSE Counter';
 
 /**
+ * The Open Graph title for the mini app.
+ * Used in ogTitle metadata (without special characters like $).
+ */
+export const APP_OG_TITLE: string = 'JESSE Counter';
+
+/**
  * A brief description of the mini app's functionality.
  * Used in app store listings and metadata.
  */

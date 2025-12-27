@@ -8,6 +8,7 @@ import {
   APP_ICON_URL,
   APP_NAME,
   APP_OG_IMAGE_URL,
+  APP_OG_TITLE,
   APP_PRIMARY_CATEGORY,
   APP_SCREENSHOT_URLS,
   APP_SPLASH_BACKGROUND_COLOR,
@@ -28,7 +29,7 @@ export function getMiniAppEmbedMetadata(ogImageUrl?: string) {
   return {
     version: 'next',
     imageUrl: ogImageUrl ?? APP_OG_IMAGE_URL,
-    ogTitle: APP_NAME,
+    ogTitle: APP_OG_TITLE,
     ogDescription: APP_DESCRIPTION,
     ogImageUrl: ogImageUrl ?? APP_OG_IMAGE_URL,
     button: {
@@ -70,7 +71,7 @@ export async function getFarcasterDomainManifest(): Promise<Manifest> {
     tagline: APP_TAGLINE,
     heroImageUrl: APP_HERO_IMAGE_URL,
     screenshotUrls: APP_SCREENSHOT_URLS.length > 0 ? APP_SCREENSHOT_URLS : undefined,
-    ogTitle: APP_NAME,
+    ogTitle: APP_OG_TITLE,
     ogDescription: APP_DESCRIPTION,
     ogImageUrl: APP_OG_IMAGE_URL,
     noindex: false,
