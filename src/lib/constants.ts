@@ -44,7 +44,7 @@ export const APP_URL: string = getAppUrl();
  * The name of the mini app as displayed to users.
  * Used in titles, headers, and app store listings.
  */
-export const APP_NAME: string = 'JESSE Counter';
+export const APP_NAME: string = '$JESSE Counter';
 
 /**
  * A brief description of the mini app's functionality.
@@ -129,7 +129,7 @@ export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = {
  * Text displayed on the main action button.
  * Used for the primary call-to-action in the mini app.
  */
-export const APP_BUTTON_TEXT: string = 'JESSE Counter';
+export const APP_BUTTON_TEXT: string = '$JESSE Counter';
 
 // --- Integration Configuration ---
 /**
