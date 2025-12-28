@@ -94,42 +94,28 @@ export function SimpleCounterPage() {
         </p>
       </div>
 
-      {/* Thank You Message */}
-      <div className="mb-4 w-full max-w-[400px] relative z-10">
-        <div className="bg-white border-2 border-[#E5E7EB] rounded-2xl p-5 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
-          <p className="text-sm text-[#475569] leading-relaxed text-center">
+      {/* Info Card */}
+      <div className="mb-8 w-full max-w-[400px] relative z-10">
+        <div className="bg-white border-2 border-[#E5E7EB] rounded-2xl p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+          <p className="text-sm text-[#475569] leading-relaxed text-center mb-4">
             Thanks everyone who supported early on! 🙏
           </p>
-        </div>
-      </div>
-
-      {/* Status Message */}
-      <div className="mb-4 w-full max-w-[400px] relative z-10">
-        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-5 shadow-[0_8px_24px_rgba(239,68,68,0.15)]">
-          <p className="text-sm text-red-700 leading-relaxed text-center mb-3">
-            The Counter has been taken down. It was also sybil attacked.
-          </p>
-          <p className="text-xs text-red-600 text-center">
+          <p className="text-sm text-red-700 leading-relaxed text-center mb-4">
+            The Counter has been taken down. It was also sybil attacked.{' '}
             <a 
               href={CONTRACT_EXPLORER_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-red-800"
             >
-              View Contract on BaseScan
+              View Contract
             </a>
           </p>
-        </div>
-      </div>
-
-      {/* Ideas Message */}
-      <div className="mb-8 w-full max-w-[400px] relative z-10">
-        <div className="bg-white border-2 border-[#E5E7EB] rounded-2xl p-5 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
           <p className="text-sm text-[#475569] leading-relaxed text-center">
             Thinking what to do next, if you have any ideas DM to{' '}
             <a 
               href="https://warpcast.com/vaibhavmule" 
-              target="_blank" 
+              target="_blank"
               rel="noopener noreferrer"
               className="text-[#0052FF] font-semibold hover:underline"
             >
