@@ -50,13 +50,13 @@ export const APP_NAME: string = '$JESSE';
  * The Open Graph title for the mini app.
  * Used in ogTitle metadata (without special characters like $).
  */
-export const APP_OG_TITLE: string = 'JESSE Counter';
+export const APP_OG_TITLE: string = 'JESSE';
 
 /**
  * A brief description of the mini app's functionality.
  * Used in app store listings and metadata.
  */
-export const APP_DESCRIPTION: string = 'Increment the JESSE counter and join the community!';
+export const APP_DESCRIPTION: string = 'Join the $JESSE community!';
 
 /**
  * Subtitle for the mini app.
@@ -68,7 +68,7 @@ export const APP_SUBTITLE: string = 'Join the JESSE community';
  * Tagline for the mini app.
  * A catchy one-liner describing the app.
  */
-export const APP_TAGLINE: string = 'Be based, increment JESSE';
+export const APP_TAGLINE: string = 'Be based, JESSE';
 
 /**
  * Hero image URL for the mini app.
@@ -92,7 +92,7 @@ export const APP_PRIMARY_CATEGORY: string = 'utility';
  * Tags associated with the mini app.
  * Used for search and discovery in app stores.
  */
-export const APP_TAGS: string[] = ['jesse', 'counter', 'pollak'];
+export const APP_TAGS: string[] = ['jesse', 'pollak'];
 
 // --- Asset URLs ---
 /**
@@ -135,7 +135,7 @@ export const APP_ACCOUNT_ASSOCIATION: AccountAssociation | undefined = {
  * Text displayed on the main action button.
  * Used for the primary call-to-action in the mini app.
  */
-export const APP_BUTTON_TEXT: string = '$JESSE Counter';
+export const APP_BUTTON_TEXT: string = '$JESSE';
 
 // --- Integration Configuration ---
 /**
