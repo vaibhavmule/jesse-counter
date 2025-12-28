@@ -90,7 +90,7 @@ export function SimpleCounterPage() {
           Coming Soon
         </h1>
         <p className="text-lg text-[#475569] font-medium mb-4">
-          Will be back with $Jesse 2.0
+          Will be back
         </p>
       </div>
 
