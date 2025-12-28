@@ -23,6 +23,8 @@
     "compile": "forge build",
     "deploy:contract": "forge script script/Deploy.s.sol:DeployScript --rpc-url base --broadcast --verify",
     "deploy:contract:testnet": "forge script script/Deploy.s.sol:DeployScript --rpc-url baseSepolia --broadcast --verify",
+    "update:token-amount": "forge script script/UpdateTokenAmount.s.sol:UpdateTokenAmountScript --rpc-url base --broadcast",
+    "update:cooldown": "forge script script/UpdateIncrementCooldown.s.sol:UpdateIncrementCooldownScript --rpc-url base --broadcast",
     "verify": "forge verify-contract --chain-id 8453"
   },
   "overrides": {

@@ -1,8 +1,6 @@
 import { notificationDetailsSchema } from "@farcaster/miniapp-sdk";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { setUserNotificationDetails } from "~/lib/kv";
-import { sendMiniAppNotification } from "~/lib/notifs";
 import { sendNeynarMiniAppNotification } from "~/lib/neynar";
 
 const requestSchema = z.object({
@@ -25,16 +23,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Only store notification details if not using Neynar
-  if (!neynarEnabled) {
-    await setUserNotificationDetails(
-      Number(requestBody.data.fid),
-      requestBody.data.notificationDetails
-    );
-  }
-
-  // Use appropriate notification function based on Neynar status
-  const sendNotification = neynarEnabled ? sendNeynarMiniAppNotification : sendMiniAppNotification;
+  // App is in coming soon mode - only use Neynar notifications if enabled
+  const sendNotification = neynarEnabled ? sendNeynarMiniAppNotification : async () => ({ state: "no_token" as const });
   const sendResult = await sendNotification({
     fid: Number(requestBody.data.fid),
     title: "Test notification",

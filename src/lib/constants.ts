@@ -44,7 +44,7 @@ export const APP_URL: string = getAppUrl();
  * The name of the mini app as displayed to users.
  * Used in titles, headers, and app store listings.
  */
-export const APP_NAME: string = '$JESSE Counter';
+export const APP_NAME: string = '$JESSE';
 
 /**
  * The Open Graph title for the mini app.

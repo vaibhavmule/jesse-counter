@@ -4,12 +4,6 @@ import {
   verifyAppKeyWithNeynar,
 } from "@farcaster/miniapp-node";
 import { NextRequest } from "next/server";
-import { APP_NAME } from "~/lib/constants";
-import {
-  deleteUserNotificationDetails,
-  setUserNotificationDetails,
-} from "~/lib/kv";
-import { sendMiniAppNotification } from "~/lib/notifs";
 
 export async function POST(request: NextRequest) {
   // If Neynar is enabled, we don't need to handle webhooks here
@@ -53,39 +47,8 @@ export async function POST(request: NextRequest) {
   const fid = data.fid;
   const event = data.event;
 
-  // Only handle notifications if Neynar is not enabled
-  // When Neynar is enabled, notifications are handled through their webhook
-  switch (event.event) {
-    case "miniapp_added":
-      if (event.notificationDetails) {
-        await setUserNotificationDetails(fid, event.notificationDetails);
-        await sendMiniAppNotification({
-          fid,
-          title: `Welcome to ${APP_NAME}`,
-          body: "Mini app is now added to your client",
-        });
-      } else {
-        await deleteUserNotificationDetails(fid);
-      }
-      break;
-
-    case "miniapp_removed":
-      await deleteUserNotificationDetails(fid);
-      break;
-
-    case "notifications_enabled":
-      await setUserNotificationDetails(fid, event.notificationDetails);
-      await sendMiniAppNotification({
-        fid,
-        title: `Welcome to ${APP_NAME}`,
-        body: "Notifications are now enabled",
-      });
-      break;
-
-    case "notifications_disabled":
-      await deleteUserNotificationDetails(fid);
-      break;
-  }
+  // App is in coming soon mode - webhook events are acknowledged but not processed
+  // No notification storage needed
 
   return Response.json({ success: true });
 }

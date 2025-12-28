@@ -4,40 +4,40 @@ pragma solidity ^0.8.20;
 import {Script, console} from "forge-std/Script.sol";
 import {JesseCounter} from "../contracts/JesseCounter.sol";
 
-contract UpdateTokenAmountScript is Script {
+contract UpdateIncrementCooldownScript is Script {
     // Contract address on Base
     address constant JESSE_COUNTER_ADDRESS = 0xbA5502536ad555eD625397872EA09Cd4A39ea014;
     
-    // New token amount: 0.05 JESSE (50000000000000000 wei)
-    uint256 constant NEW_TOKEN_AMOUNT = 50000000000000000;
+    // New cooldown period: 24 hours (86400 seconds)
+    uint256 constant NEW_COOLDOWN = 1 days; // 86400 seconds
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         address deployer = vm.addr(deployerPrivateKey);
-        console.log("Updating tokenAmount for JesseCounter contract...");
+        console.log("Updating incrementCooldown for JesseCounter contract...");
         console.log("Deployer/Owner:", deployer);
         console.log("Contract Address:", JESSE_COUNTER_ADDRESS);
         
         JesseCounter jesseCounter = JesseCounter(JESSE_COUNTER_ADDRESS);
         
-        // Get current token amount
-        uint256 currentAmount = jesseCounter.tokenAmount();
-        console.log("Current tokenAmount:", currentAmount, "wei");
-        console.log("Current tokenAmount:", currentAmount / 1e18, "JESSE");
+        // Get current cooldown
+        uint256 currentCooldown = jesseCounter.incrementCooldown();
+        console.log("Current incrementCooldown:", currentCooldown, "seconds");
+        console.log("Current incrementCooldown:", currentCooldown / 3600, "hours");
         
-        // Update to new amount
-        console.log("\nUpdating tokenAmount to:", NEW_TOKEN_AMOUNT, "wei");
-        console.log("New tokenAmount:", NEW_TOKEN_AMOUNT / 1e18, "JESSE");
+        // Update to new cooldown (24 hours)
+        console.log("\nUpdating incrementCooldown to:", NEW_COOLDOWN, "seconds");
+        console.log("New incrementCooldown:", NEW_COOLDOWN / 3600, "hours (24 hours)");
         
-        jesseCounter.updateTokenAmount(NEW_TOKEN_AMOUNT);
+        jesseCounter.updateIncrementCooldown(NEW_COOLDOWN);
         
         // Verify the update
-        uint256 updatedAmount = jesseCounter.tokenAmount();
+        uint256 updatedCooldown = jesseCounter.incrementCooldown();
         console.log("\nUpdate successful!");
-        console.log("Updated tokenAmount:", updatedAmount, "wei");
-        console.log("Updated tokenAmount:", updatedAmount / 1e18, "JESSE");
+        console.log("Updated incrementCooldown:", updatedCooldown, "seconds");
+        console.log("Updated incrementCooldown:", updatedCooldown / 3600, "hours");
         
         console.log("\nTransaction Details:");
         console.log("  Chain ID:", block.chainid);
