@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useMiniApp } from '@neynar/react';
 import { Button } from './ui/Button';
+import { TipModal } from './ui/wallet/TipModal';
 
 const CHARACTER_IMAGE_URL = '/icon.png';
 const JESSE_CONTRACT = '0xbA5502536ad555eD625397872EA09Cd4A39ea014' as const;
@@ -18,6 +19,9 @@ const CONTRACT_EXPLORER_URL = `https://basescan.org/address/${JESSE_CONTRACT}`;
  * - Waitlist signup button
  */
 export function SimpleCounterPage() {
+  // --- State ---
+  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+
   // --- Hooks ---
   const { context, actions, added, notificationDetails } = useMiniApp();
 
@@ -70,15 +74,40 @@ export function SimpleCounterPage() {
         paddingBottom: context?.client.safeAreaInsets?.bottom ? `${context.client.safeAreaInsets.bottom + 24}px` : '24px',
       }}
     >
+      {/* Tip Button - Top Right */}
+      <div 
+        className="fixed right-4 z-50"
+        style={{
+          top: context?.client.safeAreaInsets?.top 
+            ? `${context.client.safeAreaInsets.top + 16}px` 
+            : '16px',
+        }}
+      >
+        <Button
+          onClick={() => setIsTipModalOpen(true)}
+          variant="outline"
+          size="sm"
+          className="!bg-white/90 hover:!bg-white !text-[#0052FF] !border-[#0052FF] !border-2 shadow-lg backdrop-blur-sm"
+        >
+          💝 Tip
+        </Button>
+      </div>
+
+      {/* Tip Modal */}
+      <TipModal
+        isOpen={isTipModalOpen}
+        onClose={() => setIsTipModalOpen(false)}
+      />
+
       {/* Character Image */}
       <div className="mb-8 relative z-10">
         <div className="relative">
           <div className="absolute inset-0 bg-[#FFD400] rounded-full blur-2xl opacity-30 animate-pulse" />
-          <img
-            src={CHARACTER_IMAGE_URL}
-            alt="Jesse character"
+        <img
+          src={CHARACTER_IMAGE_URL}
+          alt="Jesse character"
             className="w-28 h-28 rounded-full border-4 border-[#FFD400] relative z-10 shadow-[0_8px_24px_rgba(255,212,0,0.3)]"
-          />
+        />
         </div>
       </div>
 
@@ -91,8 +120,8 @@ export function SimpleCounterPage() {
         </h1>
         <p className="text-lg text-[#475569] font-medium mb-4">
           Will be back
-        </p>
-      </div>
+            </p>
+          </div>
 
       {/* Info Card */}
       <div className="mb-8 w-full max-w-[400px] relative z-10">
@@ -127,39 +156,39 @@ export function SimpleCounterPage() {
 
       {/* Waitlist Button */}
       <div className="w-full max-w-[320px] relative z-10">
-        <Button
+          <Button
           onClick={handleJoinWaitlist}
           disabled={added && !!notificationDetails}
           className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 relative disabled:!bg-[#CBD5E1] disabled:!text-[#64748B] disabled:cursor-not-allowed"
-          style={{
+            style={{
             boxShadow: added && !!notificationDetails 
-              ? '0 4px 0 0 #A3A3A3' 
-              : '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
-            transform: 'translateY(0)',
-          }}
-          onMouseDown={(e) => {
+                ? '0 4px 0 0 #A3A3A3' 
+                : '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
+              transform: 'translateY(0)',
+            }}
+            onMouseDown={(e) => {
             if (!added || !notificationDetails) {
-              e.currentTarget.style.transform = 'translateY(4px)';
-              e.currentTarget.style.boxShadow = '0 4px 0 0 #EAB308, 0 8px 16px rgba(0,0,0,0.12)';
-            }
-          }}
-          onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(4px)';
+                e.currentTarget.style.boxShadow = '0 4px 0 0 #EAB308, 0 8px 16px rgba(0,0,0,0.12)';
+              }
+            }}
+            onMouseUp={(e) => {
             if (!added || !notificationDetails) {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
-            }
-          }}
-          onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
             if (!added || !notificationDetails) {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
-            }
-          }}
-        >
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)';
+              }
+            }}
+          >
           {added && !!notificationDetails 
             ? '✓ Added & Notifications Enabled' 
             : 'Add App & Enable Notifications'}
-        </Button>
+          </Button>
       </div>
     </div>
   );
