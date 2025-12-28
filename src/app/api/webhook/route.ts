@@ -44,11 +44,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const fid = data.fid;
-  const event = data.event;
-
   // App is in coming soon mode - webhook events are acknowledged but not processed
   // No notification storage needed
+  // data.fid and data.event are available but not used in coming soon mode
 
   return Response.json({ success: true });
 }

@@ -8,9 +8,9 @@ type SendMiniAppNotificationResult =
   | { state: "success" };
 
 export async function sendMiniAppNotification({
-  fid,
-  title,
-  body,
+  fid: _fid,
+  title: _title,
+  body: _body,
 }: {
   fid: number;
   title: string;

@@ -143,10 +143,10 @@ export function SimpleCounterPage() {
       <div className="w-full max-w-[320px] relative z-10">
         <Button
           onClick={handleJoinWaitlist}
-          disabled={added && notificationDetails}
+          disabled={added && !!notificationDetails}
           className="!bg-[#FFD400] hover:!bg-[#FACC15] active:!bg-[#EAB308] !text-[#0F172A] font-bold text-base py-4 rounded-2xl transition-all duration-200 relative disabled:!bg-[#CBD5E1] disabled:!text-[#64748B] disabled:cursor-not-allowed"
           style={{
-            boxShadow: added && notificationDetails 
+            boxShadow: added && !!notificationDetails 
               ? '0 4px 0 0 #A3A3A3' 
               : '0 8px 0 0 #EAB308, 0 12px 20px rgba(0,0,0,0.15)',
             transform: 'translateY(0)',
@@ -170,7 +170,7 @@ export function SimpleCounterPage() {
             }
           }}
         >
-          {added && notificationDetails 
+          {added && !!notificationDetails 
             ? '✓ Added & Notifications Enabled' 
             : 'Add App & Enable Notifications'}
         </Button>
