@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { MiniAppProvider } from '@neynar/react';
 import { SafeFarcasterSolanaProvider } from '~/components/providers/SafeFarcasterSolanaProvider';
+import { WalletKitProvider } from '~/components/providers/WalletKitProvider';
 import { ANALYTICS_ENABLED, RETURN_URL } from '~/lib/constants';
 
 const WagmiProvider = dynamic(
@@ -20,16 +21,18 @@ export function Providers({
   const solanaEndpoint =
     process.env.SOLANA_RPC_ENDPOINT || 'https://solana-rpc.publicnode.com';
   return (
-    <WagmiProvider>
-      <MiniAppProvider
-        analyticsEnabled={ANALYTICS_ENABLED}
-        backButtonEnabled={true}
-        returnUrl={RETURN_URL}
-      >
-        <SafeFarcasterSolanaProvider endpoint={solanaEndpoint}>
-          {children}
-        </SafeFarcasterSolanaProvider>
-      </MiniAppProvider>
-    </WagmiProvider>
+    <WalletKitProvider>
+      <WagmiProvider>
+        <MiniAppProvider
+          analyticsEnabled={ANALYTICS_ENABLED}
+          backButtonEnabled={true}
+          returnUrl={RETURN_URL}
+        >
+          <SafeFarcasterSolanaProvider endpoint={solanaEndpoint}>
+            {children}
+          </SafeFarcasterSolanaProvider>
+        </MiniAppProvider>
+      </WagmiProvider>
+    </WalletKitProvider>
   );
 }
